@@ -6,14 +6,24 @@ const Schema = mongoose.Schema;
 class TwitterUser extends Schema {
   constructor() {
     super({
-      id: Number,
+      id: String,
       name: String,
       screen_name: String,
       description: String,
       url: String,
       entities: {
-        url: String,
-        description: String
+        url: {
+          urls: [{
+            url: String,
+            expanded_url: String
+          }]
+        },
+        description: {
+          urls: [{
+            url: String,
+            expanded_url: String
+          }]
+        }
       },
       followers_count: Number,
       friends_count: Number,
@@ -28,7 +38,16 @@ class TwitterUser extends Schema {
     this.defineStaticMethods();
   }
 
-  defineStaticMethods() {}
+  defineStaticMethods() {
+    this.static('saveOrUpdate', function(params) {
+      return this.findOneAndUpdate({
+        id: params.id,
+      }, params, {
+        new: true,
+        upsert: true
+      }).exec();
+    });
+  }
 };
 
 module.exports = mongoose.model('TwitterUser', new TwitterUser());

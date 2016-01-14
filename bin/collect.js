@@ -6,6 +6,7 @@ const glob = require('glob');
 const mongoose = require('mongoose');
 
 const twitter = require('../src/services/twitter.js');
+const TwitterUser = require('../src/models/twitter-user.js');
 
 mongoose.connect(config.db);
 const db = mongoose.connection;
@@ -25,13 +26,15 @@ require('../config/express')(app, config);
 twitter.getFriendsIds({
   cursor: -1,
   screen_name: 'yasumo01',
-  count: 500
+  count: 10
 }).then((userIds) => {
   return twitter.getUsers({
     user_id: userIds.ids
   });
 }).then((users) => {
-  console.log(users);
+  users.forEach((user) => {
+    TwitterUser.saveOrUpdate(user);
+  });
 }).catch((error, something) => {
   console.log(error);
   console.log(something);
