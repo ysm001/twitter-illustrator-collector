@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const twitter = require('../services/twitter.js');
 
 class TwitterUser extends Schema {
   constructor() {
@@ -25,6 +26,7 @@ class TwitterUser extends Schema {
           }]
         }
       },
+      friend_ids: [String],
       followers_count: Number,
       friends_count: Number,
       listed_count: Number,
@@ -46,6 +48,18 @@ class TwitterUser extends Schema {
         new: true,
         upsert: true
       }).exec();
+    });
+
+    this.static('saveWithFriendIds', function(params) {
+      twitter.getFriendIds({
+        cursor: -1,
+        user_id: params.id,
+        stringify_ids: true,
+        count: 5000
+      }).then((result) => {
+        params.friend_ids = result.ids;
+        return this.saveOrUpdate(params);
+      });
     });
   }
 };

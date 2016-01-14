@@ -23,19 +23,19 @@ const app = express();
 
 require('../config/express')(app, config);
 
-twitter.getFriendsIds({
+twitter.getFriendIds({
   cursor: -1,
   screen_name: 'yasumo01',
-  count: 10
+  count: 500
 }).then((userIds) => {
   return twitter.getUsers({
     user_id: userIds.ids
   });
 }).then((users) => {
   users.forEach((user) => {
-    TwitterUser.saveOrUpdate(user);
+    TwitterUser.saveWithFriendIds(user);
   });
-}).catch((error, something) => {
+}).catch((error) => {
   console.log(error);
-  console.log(something);
+  console.log(rateLimit);
 });

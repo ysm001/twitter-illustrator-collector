@@ -1,15 +1,16 @@
-'use strict';
+ 'use strict';
 
 require('../../lib/array-ext.js');
 const twitterConfig = require('../../config/twitter.js');
 const Twitter = require('twitter');
+const TwitterRateLimit = require('./twitter-rate-limit.js');
 
 class TwitterService {
   constructor(config) {
     this.client = new Twitter(config);
   }
 
-  getFriendsIds(option) {
+  getFriendIds(option) {
     return this.get('friends/ids', option);
   }
 
@@ -45,10 +46,11 @@ class TwitterService {
   promisify(method, request, option) {
     const deferred = Promise.defer();
     this.client[method](request, option, (error, result, response) => {
+      const rateLimit = new TwitterRateLimit(response);
       if (error) {
-        defered.reject(error);
+        deferred.reject({error: error, rateLimit: rateLimit, response: response});
       } else {
-        deferred.resolve(result, response);
+        deferred.resolve(result);
       }
     });
 
