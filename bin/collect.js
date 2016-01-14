@@ -26,11 +26,9 @@ require('../config/express')(app, config);
 twitter.getFriendIds({
   cursor: -1,
   screen_name: 'yasumo01',
-  count: 500
+  count: 5000
 }).then((userIds) => {
-  return twitter.getUsers({
-    user_id: userIds.ids
-  });
+  return twitter.getUsers({ user_id: userIds.ids });
 }).then((users) => {
   users.forEach((user) => {
     TwitterUser.saveWithFriendIds(user);
