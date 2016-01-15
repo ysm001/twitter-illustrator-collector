@@ -34,6 +34,8 @@ twitter.getFriendIds({
     TwitterUser.saveWithFriendIds(user);
   });
 }).catch((error) => {
-  console.log(error);
-  console.log(rateLimit);
+  if (error.code != 88) {
+    console.log(error.stack);
+    console.log(error);
+  }
 });

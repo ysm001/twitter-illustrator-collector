@@ -3,7 +3,8 @@
 require('../../lib/array-ext.js');
 const twitterConfig = require('../../config/twitter.js');
 const Twitter = require('twitter');
-const TwitterRateLimit = require('./twitter-rate-limit.js');
+const TwitterError = require('./twitter-error.js');
+const TwitterErrorCode = require('./twitter-error-code.js');
 
 class TwitterService {
   constructor(config) {
@@ -26,6 +27,18 @@ class TwitterService {
     });
   }
 
+  retry(promise) {
+    return promise.catch((error) => {
+      if (error.code == TwitterErrorCode.RATE_LIMIT_EXCEEDED) {
+        const waitTime = (error.rateLimit.reset - Date.now() / 1000) * 1000;
+        console.log(`wait "${error.method} ${error.url}" for ${parseInt(waitTime / 1000)} sec...`);
+        setTimeout(this.retry.bind(this, promise), waitTime);
+      }
+
+      throw error;
+    });
+  }
+
   splitArray(array, size) {
     let result = [];
     for (let i = 0, l = array.length; i < l; i += size) {
@@ -36,7 +49,9 @@ class TwitterService {
   }
 
   get(request, option) {
-    return this.promisify('get', request, option);
+    const promise = this.promisify('get', request, option);
+
+    return option.retry === false ? promise : this.retry(promise);
   }
 
   post(request, option) {
@@ -45,10 +60,10 @@ class TwitterService {
 
   promisify(method, request, option) {
     const deferred = Promise.defer();
-    this.client[method](request, option, (error, result, response) => {
-      const rateLimit = new TwitterRateLimit(response);
-      if (error) {
-        deferred.reject({error: error, rateLimit: rateLimit, response: response});
+    this.client[method](request, option, (errors, result, response) => {
+      if (errors) {
+        const error = errors[0];
+        deferred.reject(new TwitterError(error.message, error.code, response));
       } else {
         deferred.resolve(result);
       }
