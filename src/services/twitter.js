@@ -9,17 +9,6 @@ const TwitterErrorCode = require('./twitter-error-code.js');
 class TwitterService {
   constructor(config) {
     this.client = new Twitter(config);
-    // this.client = {
-    //   get: (url, option, callback) => {
-    //     const rand = parseInt(Math.random() * 10);
-    //     console.log(rand);
-    //     if (rand < 3) {
-    //       callback(null, 'ok');
-    //     } else {
-    //       callback([{code: 88, message: 'test'}], null, {headers: {'x-rate-limit-reset': (Date.now() + 3000)/1000 }, req:{}});
-    //     }
-    //   }
-    // }
   }
 
   getFriendIds(option) {
