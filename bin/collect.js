@@ -23,6 +23,10 @@ const app = express();
 
 require('../config/express')(app, config);
 
+// twitter.dummy().then((result) => {
+//   console.log(result);
+// });
+
 twitter.getFriendIds({
   cursor: -1,
   screen_name: 'yasumo01',
