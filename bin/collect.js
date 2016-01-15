@@ -36,9 +36,7 @@ twitter.getFriendIds({
 }).then((users) => {
   TwitterUser.findAll().then((allUsers) => {
     const ids = allUsers.map((user) => {return user.id;});
-    console.log(ids);
     users.forEach((user) => {
-      console.log(user.id);
       if (ids.indexOf(user.id) == -1) {
         TwitterUser.saveWithFriendIds(user);
       } else {
