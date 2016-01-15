@@ -34,8 +34,17 @@ twitter.getFriendIds({
 }).then((userIds) => {
   return twitter.getUsers({ user_id: userIds.ids });
 }).then((users) => {
-  users.forEach((user) => {
-    TwitterUser.saveWithFriendIds(user);
+  TwitterUser.findAll().then((allUsers) => {
+    const ids = allUsers.map((user) => {return user.id;});
+    console.log(ids);
+    users.forEach((user) => {
+      console.log(user.id);
+      if (ids.indexOf(user.id) == -1) {
+        TwitterUser.saveWithFriendIds(user);
+      } else {
+        console.log(`skip: ${user.screen_name} is already in DB.`);
+      }
+    });
   });
 }).catch((error) => {
   if (error.code != 88) {

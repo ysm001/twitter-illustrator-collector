@@ -50,9 +50,14 @@ class TwitterUser extends Schema {
         stringify_ids: true,
         count: 5000
       }).then((result) => {
+        console.log(`${params.screen_name} is saved.`);
         params.friend_ids = result.ids;
         return this.saveOrUpdate(params);
       });
+    });
+
+    this.static('findAll', function(id) {
+      return this.find({}).exec();
     });
 
     this.static('getUrlsFromEntities', function(entities) {
